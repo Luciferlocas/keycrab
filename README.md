@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">typezzy</h1>
+  <h1 align="center">Keycrab</h1>
   <p align="center">A clean, minimal typing speed test built for focus and flow.</p>
 </p>
 
@@ -42,7 +42,7 @@
 ## Project Structure
 
 ```
-typezzy/
+keycrab/
 ├── public/
 │   └── sounds/
 │       └── sound.ogg          # Keystroke audio
@@ -79,8 +79,8 @@ typezzy/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/typezzy.git
-cd typezzy
+git clone https://github.com/Luciferlocas/keycrab.git
+cd keycrab
 ```
 
 ### 2. Install dependencies
@@ -128,8 +128,8 @@ Contributions are welcome! Whether it's a bug fix, new feature, or UI improvemen
 2. **Clone your fork** locally:
 
    ```bash
-   git clone https://github.com/<your-username>/typezzy.git
-   cd typezzy
+   git clone https://github.com/Luciferlocas/keycrab.git
+   cd keycrab
    ```
 
 3. **Create a new branch** for your change:

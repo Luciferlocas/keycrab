@@ -182,6 +182,8 @@ export default function TypingTest() {
   const [incorrect, setIncorrect] = useState(0);
   const [cursorOn, setCursorOn] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [wpmHistory, setWpmHistory] = useState<WpmSample[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
@@ -209,6 +211,23 @@ export default function TypingTest() {
   // generate words (scaled to duration)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setText(generateText(getWordCount(duration))); }, []);
+
+  // Close menu on click outside
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
+
+  // Close menu when typing starts
+  useEffect(() => {
+    if (state === "typing") setMenuOpen(false);
+  }, [state]);
 
   // cursor blink
   useEffect(() => {
@@ -479,21 +498,65 @@ export default function TypingTest() {
             </div>
           )}
 
-        {/* Right: sound toggle — hidden on results screen */}
+        {/* Right: menu toggle — hidden on results screen */}
         {state !== "done" && (
-          <button
-            onClick={() => setSoundEnabled((v) => !v)}
-            className={`absolute right-0 flex items-center justify-center w-9 h-9 rounded-full bg-[#2c2c2e] transition-colors ${
-              soundEnabled ? "text-[#6ee7b7]" : "text-[#646669] hover:text-[#d1d0c5]"
-            }`}
-            title={soundEnabled ? "Mute sounds" : "Enable sounds"}
-          >
-            {soundEnabled ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+          <div className="absolute right-0" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className={`flex items-center justify-center w-9 h-9 rounded-full bg-[#2c2c2e] transition-colors ${
+                menuOpen ? "text-[#6ee7b7]" : "text-[#646669] hover:text-[#d1d0c5]"
+              }`}
+              title="Menu"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+
+            {/* Dropdown */}
+            {menuOpen && (
+              <div className="absolute right-0 top-11 z-50 w-48 bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl shadow-xl py-1 font-mono text-xs animate-in fade-in">
+                {/* Sound toggle */}
+                <button
+                  onClick={() => setSoundEnabled((v) => !v)}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-left transition-colors hover:bg-[#3a3a3c]"
+                >
+                  {soundEnabled ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                  )}
+                  <span className={soundEnabled ? "text-[#6ee7b7]" : "text-[#646669]"}>
+                    Sound {soundEnabled ? "on" : "off"}
+                  </span>
+                </button>
+
+                <div className="mx-3 my-1 border-t border-[#3a3a3c]" />
+
+                {/* GitHub */}
+                <a
+                  href="https://github.com/Luciferlocas/keycrab"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-[#d1d0c5] transition-colors hover:bg-[#3a3a3c]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                  GitHub
+                </a>
+
+                {/*LinkedIn*/}
+                <a
+                  href="https://linkedin.com/in/rohit-somvanshi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-[#d1d0c5] transition-colors hover:bg-[#3a3a3c]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>
+                  </svg>
+                  LinkedIn
+                </a>
+              </div>
             )}
-          </button>
+          </div>
         )}
       </div>
 
