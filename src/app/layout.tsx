@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "KeyCrab",
-  description: "A clean, minimal typing test with an interactive keyboard",
+  description: "A clean, minimal typing test with an interactive keyboard"
 };
 
 export default function RootLayout({
